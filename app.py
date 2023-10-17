@@ -1,16 +1,18 @@
 import os
-from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, FloatField
-from wtforms.validators import DataRequired, Length , NumberRange
-from flask_sqlalchemy import SQLAlchemy
-from werkzeug.utils import secure_filename
-from flask_wtf.file import FileField, FileRequired, FileAllowed
+
 from decouple import config
+from flask import Flask, render_template, redirect, url_for, flash
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import FlaskForm
+from flask_wtf.file import FileField
+from werkzeug.utils import secure_filename
+from wtforms import StringField, TextAreaField, FloatField
+from wtforms.validators import DataRequired, Length, NumberRange
 
 app = Flask(__name__)
 # Configuración de la base de datos (MariaDB)
-app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql://{config('DB_USER')}:{config('DB_PASSWORD')}@{config('DB_HOST')}/{config('DB_NAME')}"
+app.config[
+    'SQLALCHEMY_DATABASE_URI'] = f"mysql://{config('DB_USER')}:{config('DB_PASSWORD')}@{config('DB_HOST')}/{config('DB_NAME')}"
 
 app.config['UPLOAD_FOLDER'] = 'static/archivos'
 app.config['MAX_CONTENT_LENGTH'] = 2 * 1024 * 1024  # Tamaño máximo de la imagen (2 MB)
@@ -19,6 +21,7 @@ db = SQLAlchemy(app)
 SECRET_KEY = config('SECRET_KEY')
 app.config['SECRET_KEY'] = SECRET_KEY
 
+
 class Producto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     imagen = db.Column(db.String(255), unique=True, nullable=False)
@@ -26,20 +29,25 @@ class Producto(db.Model):
     descripcion = db.Column(db.Text, nullable=False)
     precio = db.Column(db.Float, nullable=False)
 
+
 class ProductoForm(FlaskForm):
     nombre = StringField('Nombre', validators=[DataRequired(), Length(max=100)])
     descripcion = TextAreaField('Descripción', validators=[DataRequired()])
-    precio = FloatField('Precio', validators=[DataRequired(), NumberRange(min=0.99, message='El precio debe ser un número positivo.')])
+    precio = FloatField('Precio', validators=[DataRequired(),
+                                              NumberRange(min=0.99, message='El precio debe ser un número positivo.')])
     imagen = FileField('Imagen', validators=[DataRequired()])
+
 
 @app.route('/')
 def index():
     productos = Producto.query.all()
     return render_template('index.html', productos=productos)
 
+
 @app.route('/pagina_principal')
 def pagina_principal():
     return render_template('pagina_principal.html')
+
 
 @app.route('/agregar_producto', methods=['GET', 'POST'])
 def agregar_producto():
@@ -69,6 +77,7 @@ def agregar_producto():
 
     return render_template('agregar_producto.html', form=form)
 
+
 @app.route('/lista_productos')
 def lista_productos():
     # Lógica para obtener la lista de productos, por ejemplo:
@@ -80,6 +89,7 @@ def lista_productos():
 def ver_producto(id):
     producto = Producto.query.get(id)
     return render_template('ver_producto.html', producto=producto)
+
 
 @app.route('/editar_producto/<int:id>', methods=['GET', 'POST'])
 def editar_producto(id):
@@ -121,7 +131,7 @@ def eliminar_producto(id):
     flash('Producto eliminado con éxito', 'success')
     return redirect(url_for('index'))
 
+
 if __name__ == '__main__':
     app.run(debug=True)
     print(f"UPLOAD_FOLDER: {app.config['UPLOAD_FOLDER']}")
-
