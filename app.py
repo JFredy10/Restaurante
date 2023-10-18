@@ -1,5 +1,4 @@
 import os
-
 from decouple import config
 from flask import Flask, render_template, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
@@ -134,4 +133,4 @@ def eliminar_producto(id):
 
 if __name__ == '__main__':
     app.run(debug=True)
-    print(f"UPLOAD_FOLDER: {app.config['UPLOAD_FOLDER']}")
+
